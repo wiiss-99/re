@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog - World Recipes Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #fff; font-family: 'Arial', sans-serif; }
+        .container { margin-top: 20px; padding: 20px; }
+        h1 { color: #dc3545; font-size: 2em; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        .post-card { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h3 { color: #ff7f50; font-weight: bold; }
+        .btn-primary { background-color: #ff7f50; border: none; color: #fff; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-transform: uppercase; }
+        .btn-primary:hover { background-color: #e06641; }
+    </style>
+</head>
+<body>
+    <!-- النافبار المحدث -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">World Recipes Hub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('add_recipe') }}">Add Recipe</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('search') }}">Search</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="myStuffDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            My Stuff
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="myStuffDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('favorites') }}">Favorites</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('cookbook') }}">Cookbook</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('community') }}">Community</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('meal_planner') }}">Meal Planner</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="discoverDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Discover
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="discoverDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('suggest') }}">Suggestions</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('recommendations') }}">Recommendations</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('blog') }}">Blog</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('contests') }}">Contests</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('donate') }}">Donate</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item auth-buttons">
+                            <span class="nav-link d-inline">Hi, {{ current_user.username }}</span>
+                            <a href="{{ url_for('logout') }}" class="btn btn-outline-primary">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item auth-buttons">
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Login</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn btn-outline-primary ms-2">Dark Mode</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Cooking Blog</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% if is_owner %}
+            <div class="text-center mb-4">
+                <a href="{{ url_for('add_post') }}" class="btn btn-primary">Add New Post</a>
+            </div>
+        {% endif %}
+        
+        {% for post in posts %}
+            <div class="post-card">
+                <h3>{{ post[1] }}</h3>
+                <p>{{ post[2] }}</p>
+                <p><strong>By:</strong> {{ post[3] }} | <strong>Date:</strong> {{ post[4] }}</p>
+                {% if post[5] %}
+                    <p><strong>Related Recipe:</strong> <a href="{{ url_for('recipe_detail', recipe_id=post[5]) }}">{{ post[6] }}</a></p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

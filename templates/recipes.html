@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recipes from {{ country }} - World Recipes Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+        .container { margin-top: 20px; padding: 20px; }
+        h1 { color: #dc3545; font-size: 2em; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        .recipe-card { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .recipe-card:hover { transform: translateY(-5px); }
+        h3 { color: #ff7f50; font-weight: bold; }
+        img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+        .btn-primary { background-color: #ff7f50; border: none; color: #fff; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-transform: uppercase; }
+        .btn-primary:hover { background-color: #e06641; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recipes from {{ country }}</h1>
+        <div class="row g-4">
+            {% for recipe in recipes %}
+                <div class="col-md-6">
+                    <a href="{{ url_for('recipe_detail', recipe_id=recipe[0]) }}" style="text-decoration: none; color: inherit;">
+                        <div class="recipe-card">
+                            {% if recipe[5] %}
+                                <img src="{{ url_for('static', filename=recipe[5]) }}" alt="{{ recipe[2] }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200" alt="No image">
+                            {% endif %}
+                            <h3>{{ recipe[2] }}</h3>
+                            <p><strong>Country:</strong> {{ recipe[1] }}</p>
+                            <p><strong>Category:</strong> {{ recipe[4] }}</p>
+                            <p><strong>Rating:</strong> {{ "%.1f"|format(recipe[6]) }}/5</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

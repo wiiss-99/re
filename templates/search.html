@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Search - World Recipes Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css">
+    <style>
+        body {
+            background: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+        .container { margin-top: 20px; padding: 20px; max-width: 1200px; }
+        h1 { color: #dc3545; font-size: 2em; font-weight: bold; margin-bottom: 20px; }
+        .form-control, .form-select { border: 1px solid #ff7f50; border-radius: 5px; padding: 10px; margin-bottom: 15px; }
+        .btn-primary { background-color: #ff7f50; border: none; color: #fff; padding: 10px 20px; border-radius: 5px; }
+        .slider { margin: 20px 0; }
+        .card { border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .card-img-top { height: 200px; object-fit: cover; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Search</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" id="keyword" class="form-control" placeholder="Keyword">
+                <input type="text" id="country" class="form-control" placeholder="Country">
+                <select id="continent" class="form-select">
+                    <option value="">All Continents</option>
+                    {% for continent in continents %}
+                        <option value="{{ continent }}">{{ continent }}</option>
+                    {% endfor %}
+                </select>
+                <select id="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+                <div class="slider" id="timeSlider"></div>
+                <p>Max Prep Time: <span id="timeValue">120</span> min</p>
+                <div class="slider" id="caloriesSlider"></div>
+                <p>Calories: <span id="caloriesValue">0 - 1000</span></p>
+            </div>
+            <div class="col-md-9">
+                <div id="results" class="row g-4"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
+    <script>
+        const timeSlider = document.getElementById('timeSlider');
+        const caloriesSlider = document.getElementById('caloriesSlider');
+        const timeValue = document.getElementById('timeValue');
+        const caloriesValue = document.getElementById('caloriesValue');
+        const resultsDiv = document.getElementById('results');
+
+        noUiSlider.create(timeSlider, {
+            start: 120,
+            range: { min: 0, max: 120 },
+            step: 5,
+        });
+        noUiSlider.create(caloriesSlider, {
+            start: [0, 1000],
+            range: { min: 0, max: 1000 },
+            connect: true,
+        });
+
+        timeSlider.noUiSlider.on('update', function(values) {
+            timeValue.textContent = Math.round(values[0]);
+            searchRecipes();
+        });
+        caloriesSlider.noUiSlider.on('update', function(values) {
+            caloriesValue.textContent = `${Math.round(values[0])} - ${Math.round(values[1])}`;
+            searchRecipes();
+        });
+
+        ['keyword', 'country', 'continent', 'category'].forEach(id => {
+            document.getElementById(id).addEventListener('input', searchRecipes);
+        });
+
+        function searchRecipes() {
+            const params = {
+                keyword: document.getElementById('keyword').value,
+                country: document.getElementById('country').value,
+                continent: document.getElementById('continent').value,
+                category: document.getElementById('category').value,
+                max_time: timeSlider.noUiSlider.get(),
+                min_calories: caloriesSlider.noUiSlider.get()[0],
+                max_calories: caloriesSlider.noUiSlider.get()[1]
+            };
+            fetch('/api/search?' + new URLSearchParams(params))
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = data.map(r => `
+                        <div class="col-md-4">
+                            <div class="card">
+                                <img src="${r.image ? '/static/' + r.image : 'https://via.placeholder.com/400x200'}" class="card-img-top" alt="${r.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${r.name}</h5>
+                                    <p class="card-text">${r.country} - ${r.category}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                });
+        }
+    </script>
+</body>
+</html>

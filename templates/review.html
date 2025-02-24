@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review Recipes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container { margin-top: 80px; }
+        .recipe-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+        }
+        h1 { color: #ff6347; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Review Submitted Recipes</h1>
+        {% for recipe in pending %}
+            <div class="recipe-card">
+                <h3>{{ recipe[2] }} ({{ recipe[1] }})</h3>
+                <p><strong>Ingredients:</strong> {{ recipe[3] }}</p>
+                <p><strong>Instructions:</strong> {{ recipe[4] }}</p>
+                <p><strong>Category:</strong> {{ recipe[5] }}</p>
+                {% if recipe[6] %}
+                    <img src="{{ url_for('static', filename='uploads/' + recipe[6].split('/')[-1]) }}" alt="{{ recipe[2] }}" style="max-width: 300px;">
+                {% endif %}
+                {% if recipe[7] %}
+                    <p><a href="{{ recipe[7] }}" target="_blank">Video</a></p>
+                {% endif %}
+                <form method="POST">
+                    <input type="hidden" name="recipe_id" value="{{ recipe[0] }}">
+                    <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                    <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                </form>
+            </div>
+        {% endfor %}
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Back</a>
+        </div>
+    </div>
+</body>
+</html>

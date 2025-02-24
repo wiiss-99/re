@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cookbook - World Recipes Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #fff; font-family: 'Poppins', sans-serif; }
+        .container { margin-top: 20px; padding: 20px; }
+        h1 { color: #dc3545; font-size: 2em; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        .recipe-card { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .recipe-card:hover { transform: translateY(-5px); }
+        h3 { color: #ff7f50; font-weight: bold; }
+        img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+        .btn-primary { background-color: #ff7f50; border: none; color: #fff; padding: 10px 20px; border-radius: 5px; font-weight: bold; text-transform: uppercase; }
+        .btn-primary:hover { background-color: #e06641; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">World Recipes Hub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('add_recipe') }}">Add Recipe</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('search') }}">Search</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="myStuffDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            My Stuff
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="myStuffDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('favorites') }}">Favorites</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('cookbook') }}">Cookbook</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('community') }}">Community</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('meal_planner') }}">Meal Planner</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="discoverDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Discover
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="discoverDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('suggest') }}">Suggestions</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('recommendations') }}">Recommendations</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('blog') }}">Blog</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('contests') }}">Contests</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('donate') }}">Donate</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item auth-buttons">
+                            <span class="nav-link d-inline">Hi, {{ current_user.username }}</span>
+                            <a href="{{ url_for('logout') }}" class="btn btn-outline-primary">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item auth-buttons">
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Login</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-primary">Sign Up</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn btn-outline-primary ms-2">Dark Mode</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Your Cookbook</h1>
+        <div class="row g-4">
+            {% for recipe in cookbook_recipes %}
+                <div class="col-md-6">
+                    <a href="{{ url_for('recipe_detail', recipe_id=recipe[0]) }}" style="text-decoration: none; color: inherit;">
+                        <div class="recipe-card">
+                            {% if recipe[4] and recipe[4]|length > 0 %}
+                                <img src="{{ url_for('static', filename=recipe[4][0]) }}" alt="{{ recipe[2] }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200" alt="No image">
+                            {% endif %}
+                            <h3>{{ recipe[2] }}</h3>
+                            <p><strong>Country:</strong> {{ recipe[1] }}</p>
+                            <p><strong>Rating:</strong> {{ "%.1f"|format(recipe[3]) }}/5</p>
+                            <p><strong>Notes:</strong> {{ recipe[5] if recipe[5] else "No notes" }}</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>
